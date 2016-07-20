@@ -1,0 +1,15 @@
+CONFIGURACION
+
+1 - C:\Windows\System32\drivers\etc
+2 - AÑADIR AL FINAL
+	127.0.0.2	webproy.com
+3 - C:\xampp\apache\conf\extra\httpd-vhost.conf
+4 - AÑADIR AL FINAL
+	<VirtualHost webproy.com>
+	    ServerAdmin webmaster@dummy-host2.example.com
+	    DocumentRoot "C:/xampp/htdocs/webproy"
+	    ServerName dummy-host2.example.com
+	    ServerAlias www.dummy-host.example.com
+	    ErrorLog "logs/dummy-host2.example.com-error.log"
+	    CustomLog "logs/dummy-host2.example.com-access.log" common
+	</VirtualHost>
