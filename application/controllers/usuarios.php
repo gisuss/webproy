@@ -8,12 +8,13 @@ class Usuarios extends CI_Controller
 		parent::__construct();
 		$this->load->library('form_validation');
 		$this->load->model('usuarios_model');
+		$this->load->library('session');
 	}
 
 	public function index()
 	{
 		$data = array(
-			'titulo' => 'Inicio de Sesion'
+			'titulo' => 'Login'
 		);
 		$this->load->view('login_view',$data);
 	}
@@ -21,7 +22,7 @@ class Usuarios extends CI_Controller
 	public function signup()
 	{
 		$data = array(
-			'titulo' => 'Registro'
+			'titulo' => 'Sign Up'
 		);
 		$this->load->view('signup_view',$data);
 	}
@@ -52,13 +53,15 @@ class Usuarios extends CI_Controller
 			if ($this->form_validation->run() != FALSE) {
 				$this->usuarios_model->add_user();
 				$data1 = array(
-					'mensaje'=>'El Usuario se registro correctamente.',
-					'titulo' => 'Registro'
+					'mensaje'=>'Se registro correctamente al usuario: ',
+					'titulo' => 'Login',
+					'usuario' => $this->input->post('usuario')
 				);
-				$this->load->view('signup_view',$data1);
+				$this->load->view('login_view',$data1);
 			}else{
 				$data = array(
-					'titulo' => 'Registro'
+					'titulo' => 'Sign Up',
+					'mensaje' => 'Hubo un Error | Verifique el Formulario'
 				);
 				$this->load->view('signup_view',$data);
 			}
@@ -92,16 +95,48 @@ class Usuarios extends CI_Controller
 		if ($this->input->post('submit')) {
 			$variable = $this->usuarios_model->very_sesion();
 			if ($variable == true) {
-				$variables = array(
-					'usuario' => $this->input->post('usuario')
-				);
-				$this->session->set_userdata($variables);
-				redirect(base_url().'inicio');
-				//$query = $this->usuarios_model->get_tipo_usuario();
+				$estado = $this->usuarios_model->very_estado();
+				if ($estado == true) {
+					$variables = array(
+						'usuario' => $this->input->post('usuario')
+					);
+					$this->session->set_userdata('logged_in',$variables);
+					$type = $this->usuarios_model->get_tipo_usuario($this->input->post('usuario'));
+
+					if ($type != null) {
+						$q = $type['tipo'];
+						$data['titulo'] = 'HomePage';
+						$data['tipo'] = $type['tipo'];
+						$data['usuario'] = $this->input->post('usuario');
+
+						switch ($q) {
+							case 'gerente':
+								//redirect(base_url().'gerente/');
+							break;
+							case 'admin':
+								redirect(base_url().'admin/');
+							break;
+							case 'tecnico':
+								//redirect(base_url().'tecnico/');
+							break;
+							case 'solicitante':
+								redirect(base_url().'solicitante/');
+							break;
+						}
+					}else{
+						redirect(base_url().'usuarios/');
+					}
+				}else{
+					$data = array(
+						'mensaje1' => 'El usuario esta Inactivo',
+						'titulo' => 'Log In'
+					);
+					$this->load->view('login_view',$data);
+				}
 			}else{
 				$data1 = array(
-					'mensaje'=>'El Usuario o Contraseña son Incorrectos.',
-					'titulo' => 'Registro'
+					'mensaje1'=>'El Usuario o la Contraseña son Incorrectos.',
+					'titulo' => 'Log In'
 				);
 				$this->load->view('login_view',$data1);
 			}
@@ -116,8 +151,11 @@ class Usuarios extends CI_Controller
 		$datasession = array('usuario' => '');
 	    // y eliminamos la sesión
 	    $this->session->unset_userdata($datasession);
+	    session_destroy();
 	    // redirigimos al controlador principal
-	    redirect(base_url().'usuarios/signup');
+	    redirect(base_url().'inicio');
 	}
 
 }
+
+?>

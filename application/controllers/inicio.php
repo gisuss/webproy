@@ -14,8 +14,10 @@ class Inicio extends CI_Controller
 	public function index()
 	{
 		$data = array(
-				'titulo' => 'Pagina de Inicio'
+			'titulo' => 'Pagina de Inicio'
 		);
 		$this->load->view('inicio_view',$data);
 	}
 }
+
+?>
